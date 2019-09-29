@@ -26,8 +26,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -41,6 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import reactor.core.publisher.Flux;
 
 public class Main {
 
@@ -57,9 +60,14 @@ public class Main {
 
     //watchFile();
     //parse();
+    final Runtime runtime = Runtime.getRuntime();
     fileChan2();
 
+    System.out.printf("Memory in use while reading: %dMB\n",  // <3>
+        (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024));
   }
+
+
 
   private static void fileChan2() throws Exception {
     FileChannel channel = FileChannel.open(Path.of("/home/rmn/sber/loadFile/U01-20170918-001.csv"),
@@ -85,6 +93,8 @@ public class Main {
       }
     }
     byte [] arr = Arrays.copyOf(buffer.array(), a1);
+    CharBuffer result = Charset.forName("UTF-8").decode(buffer);
+    System.out.println(result);
     System.out.println(new String(arr, StandardCharsets.UTF_8));
     System.out.println("Stroki " + stroki + " Pro4itano " + a1);
     channel.close();
